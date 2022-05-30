@@ -1,21 +1,11 @@
 import socket
 import struct
-import tkinter as tk
-from tkinter import ttk
+
 
 
 #main()
 def get_packet():
      s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
-     root = tk.Tk()
-     root.geometry('620x200')
-     tree = ttk.Treeview(root)
-     tree.heading(text='Destination_MAC')
-     tree.heading(text='Source MAC')
-
-
-     tree.pack()
-     root.mainloop()
      while True:
         raw_data, add = s.recvfrom(65535)
         des_mac, src_mac, et_protocol, data = ethernet(raw_data)
