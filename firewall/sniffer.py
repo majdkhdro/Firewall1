@@ -1,19 +1,13 @@
-import ipaddress
 import socket
 import struct
-import sys
-import tkinter
 from tkinter import *
 from tkinter import ttk
-from ipaddress import ip_interface
 import csv
-import  os
 
 
 class GUI:
     def __init__(self, root ):
         self.root = root
-
         width_screen = self.root.winfo_screenwidth()-70
         height_screen = self.root.winfo_screenheight()-65
         print(width_screen)
@@ -84,6 +78,8 @@ class GUI:
             self.tree.insert('' , END, values=( self.Source_MAC,self.Destination_MAC, 'UDP', self.Source_IP, self.Target_IP,self.src_port,self.dest_port,self.Action))
 
 root = Tk()
+icon = PhotoImage(file='icon.png')
+root.iconphoto(False, icon)
 ob = GUI(root)
 send_sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
 send_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -126,21 +122,13 @@ def get_packet():
                      src_port, dest_port, udp_length = udp_packet(data_ip)
                      print('\t\t-UDP Segment:')
                      print("\t\t\tSource Port: {}, Destination Port: {}, UDP Length: {}".format(src_port, dest_port,udp_length ))
-                 '''
-                 #----------Rule Of Firewall-----------
-                 ip1 = ipaddress.IPv4Address(src_ip)
-                 ip2 = ipaddress.IPv4Network('127.0.0.0/24')
-                 if ip1 in ip2 and protocol == 1:
-                    Action = "Deny"
-                 else:
-                    Action = "Permit"
-                 '''
+
                  if validate_with_route_table(src_ip,protocol):
                      Action = "D"
-                     sendpacket(send_sock, data, "127.0.0.2")
 
                  else:
                      Action = "P"
+                     sendpacket(send_sock, data, "192.168.1.51")
 
                  #-------insert the values in GUI--------------------
                  if protocol == 1:
@@ -218,14 +206,14 @@ def cont(sip):
           count = count + 1
 
   list_ip.append(sip)
-  print("frequncy",sip ,"in list=",count)
-  print(list_ip)
+  #print("frequncy",sip ,"in list=",count)
+  #print(list_ip)
   return count
 
 
 
-def validate_with_route_table(src_ip , src_port):
-    if cont(src_ip) > 20:
+def validate_with_route_table(src_ip , protocol):
+    if cont(src_ip) > 10:
         file = open('iplist.csv', 'r+', newline='')
         x = True
         for line in file:
@@ -234,13 +222,13 @@ def validate_with_route_table(src_ip , src_port):
                 x = False
         if x:
             wr = csv.writer(file)
-            wr.writerow([src_ip, src_port])
+            wr.writerow([src_ip, protocol])
         file.close()
     with open("/home/majd/PycharmProjects/github/Firewall1/firewall/iplist.csv" ) as rules_stream:
         for line in rules_stream:
             rule = line.strip().split(",")
-            print(rule)
-            if compare_rules(rule[0],src_ip) and compare_rules(rule[1],src_port):
+            #print(rule)
+            if compare_rules(rule[0],src_ip) and compare_rules(rule[1],protocol):
                 return True
             else:
                 continue
