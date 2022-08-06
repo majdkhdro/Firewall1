@@ -128,7 +128,7 @@ def get_packet():
 
                  else:
                      Action = "P"
-                     sendpacket(send_sock, data, "192.168.1.51")
+                     #sendpacket(send_sock, data, "192.168.1.51")
 
                  #-------insert the values in GUI--------------------
                  if protocol == 1:
